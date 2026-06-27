@@ -1,0 +1,82 @@
+from typing import List, Optional
+
+from .models import (
+    Document,
+    DocumentCreate,
+    DocumentUpdate,
+    DocumentStatus,
+)
+from .storage import DocumentStorage
+from .cache import cache_get, cache_set, cache_delete
+
+
+class DocumentService:
+    def __init__(self):
+        self.storage = DocumentStorage()
+
+    def create_document(self, document_data: DocumentCreate) -> Document:
+        """
+        Create new document with business logic validation
+        """
+        # TODO: Implement document creation using self.storage
+        raise NotImplementedError("TODO: Implement create_document")
+
+    def get_document(self, document_id: str) -> Optional[Document]:
+        """
+        Get document with caching
+        """
+        # TODO: Implement get with cache-aside pattern
+        # Hint: Check cache first, then storage
+        raise NotImplementedError("TODO: Implement get_document")
+
+    def update_document(
+        self,
+        document_id: str,
+        updates: DocumentUpdate,
+    ) -> Optional[Document]:
+        """
+        Update document with validation
+        """
+        # TODO: Implement update with business rules
+        # Consider:
+        #   status transition validation
+        #   cache invalidation
+        raise NotImplementedError("TODO: Implement update_document")
+
+    def delete_document(self, document_id: str) -> bool:
+        """
+        Delete document with cleanup
+        """
+        # TODO: Implement deletion with cache cleanup
+        raise NotImplementedError("TODO: Implement delete_document")
+
+    def list_documents(
+        self,
+        status: Optional[str] = None,
+        document_type: Optional[str] = None,
+    ) -> List[Document]:
+        """
+        List documents with optional filtering.
+
+        For this exercise, simply return filtered results from storage.
+        Do NOT implement caching for list operations.
+        """
+        # TODO: Implement document listing with filters
+        raise NotImplementedError("TODO: Implement list_documents")
+
+    def _is_valid_status_transition(
+        self,
+        current: DocumentStatus,
+        new: DocumentStatus,
+    ) -> bool:
+        """
+        Validate status transitions
+
+        Valid transitions:
+            draft -> reviewed
+            reviewed -> final
+            final -> final
+
+        Same status is always valid.
+        """
+        raise NotImplementedError("TODO: Implement _is_valid_status_transition")
