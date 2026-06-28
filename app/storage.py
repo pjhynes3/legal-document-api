@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid  # For generating unique IDs
 
 from .models import (
@@ -31,7 +31,21 @@ class DocumentStorage:
             created_at
             updated_at
         """
-        raise NotImplementedError("TODO: Implement create_document")
+        now = datetime.now(timezone.utc)
+        document_id = str(uuid.uuid4())
+        
+        document = Document(
+            id            = document_id,
+            title         = document_data.title,
+            content       = document_data.content,
+            document_type = document_data.document_type,
+            status        = DocumentStatus.DRAFT,
+            created_at    = now,
+            updated_at    = now,
+        )
+
+        self._documents[document_id] = document
+        return document
 
     def get_document(self, document_id: str) -> Optional[Document]:
         """

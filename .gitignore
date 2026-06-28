@@ -11,6 +11,11 @@ env/
 # VS Code
 .vscode/
 
+# Scratch files
+scratch.py
+playground.py
+sandbox.py
+
 # macOS
 .DS_Store
 
