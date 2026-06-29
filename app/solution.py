@@ -17,13 +17,16 @@ document_service = DocumentService()
 @app.post("/documents", response_model=Document)
 async def create_document(document_data: DocumentCreate):
     """Create a new document"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+    return document_service.create_document(document_data)
 
 
 @app.get("/documents/{document_id}", response_model=Document)
 async def get_document(document_id: str):
     """Get document by ID"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+    document = document_service.get_document(document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return document
 
 
 @app.put("/documents/{document_id}", response_model=Document)
@@ -32,13 +35,23 @@ async def update_document(
     updates: DocumentUpdate,
 ):
     """Update document"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+    try:
+        updated_document = document_service.update_document(document_id, updates)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    if updated_document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return updated_document
 
 
 @app.delete("/documents/{document_id}")
 async def delete_document(document_id: str):
     """Delete document"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+    deleted = document_service.delete_document(document_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {"message": "Document deleted successfully"}
 
 
 @app.get("/documents", response_model=List[Document])
@@ -47,4 +60,4 @@ async def list_documents(
     document_type: Optional[str] = Query(None),
 ):
     """List documents with optional filtering"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+    return document_service.list_documents(status, document_type)
