@@ -49,15 +49,31 @@ class DocumentService:
         # Consider:
         #   status transition validation
         #   cache invalidation
-        raise NotImplementedError("TODO: Implement update_document")
+        document = self.storage.get_document(document_id)
+        if document is None:
+            return None
+        
+        if updates.status is not None:
+            if not self._is_valid_status_transition(document.status, updates.status):
+                raise ValueError("Invalid status transition")
+        
+        updated_document = self.storage.update_document(document_id, updates)
+
+        cache_key = f"document:{document_id}"
+        cache_delete(cache_key)
+        return self.update_document
 
     def delete_document(self, document_id: str) -> bool:
         """
         Delete document with cleanup
         """
         # TODO: Implement deletion with cache cleanup
-        raise NotImplementedError("TODO: Implement delete_document")
-
+        if not self.storage.delete_document(document_id):
+            return False
+        cache_key = f"document:{document_id}"
+        cache_delete(cache_key)
+        return True
+    
     def list_documents(
         self,
         status: Optional[str] = None,
@@ -70,7 +86,7 @@ class DocumentService:
         Do NOT implement caching for list operations.
         """
         # TODO: Implement document listing with filters
-        raise NotImplementedError("TODO: Implement list_documents")
+        return self.storage.list_documents(status, document_type)
 
     def _is_valid_status_transition(
         self,
@@ -87,4 +103,11 @@ class DocumentService:
 
         Same status is always valid.
         """
-        raise NotImplementedError("TODO: Implement _is_valid_status_transition")
+        if current == new:  # same status is always valid
+            return True
+        
+        valid_transitions = {
+            DocumentStatus.DRAFT: DocumentStatus.REVIEWED,
+            DocumentStatus.REVIEWED: DocumentStatus.FINAL,
+        }
+        return valid_transitions.get(current) == new
