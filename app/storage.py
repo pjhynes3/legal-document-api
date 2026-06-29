@@ -51,7 +51,7 @@ class DocumentStorage:
         """
         Get document by ID
         """
-        raise NotImplementedError("TODO: Implement get_document")
+        return self._documents.get(document_id)
 
     def update_document(
         self,
@@ -64,13 +64,30 @@ class DocumentStorage:
         Hint:
             Remember to update the updated_at timestamp.
         """
-        raise NotImplementedError("TODO: Implement update_document")
+        document = self._documents.get(document_id)
+        if document is None:
+            return None
+        if updates.title is not None:
+            document.title = updates.title
+        if updates.content is not None:
+            document.content = updates.content
+        if updates.status is not None:
+            document.status = updates.status
 
+        # IMPORTANT : update timestamp!
+        document.updated_at = datetime.now(timezone.utc)
+
+        self._documents[document_id] = document
+        return document
+    
     def delete_document(self, document_id: str) -> bool:
         """
         Delete document, return True if successful
         """
-        raise NotImplementedError("TODO: Implement delete_document")
+        if document_id not in self._documents:
+            return False
+        del self._documents[document_id]
+        return document_id not in self._documents
 
     def list_documents(
         self,
@@ -80,4 +97,21 @@ class DocumentStorage:
         """
         List documents with optional filtering
         """
-        raise NotImplementedError("TODO: Implement list_documents")
+        # if no status or doc type, list all. otherwise match those
+        documents = list(self._documents.values())
+
+        if status is not None:
+            documents = [
+                document 
+                for document in documents
+                if document.status == status
+            ]
+
+        if document_type is not None:
+            documents = [
+                document 
+                for document in documents
+                if document.document_type == document_type
+            ]
+
+        return documents

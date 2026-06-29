@@ -18,8 +18,7 @@ class DocumentService:
         """
         Create new document with business logic validation
         """
-        # TODO: Implement document creation using self.storage
-        raise NotImplementedError("TODO: Implement create_document")
+        return self.storage.create_document(document_data)
 
     def get_document(self, document_id: str) -> Optional[Document]:
         """
@@ -27,7 +26,16 @@ class DocumentService:
         """
         # TODO: Implement get with cache-aside pattern
         # Hint: Check cache first, then storage
-        raise NotImplementedError("TODO: Implement get_document")
+        cache_key = f"document:{document_id}"
+
+        cached_document = cache_get(cache_key)
+        if cached_document is not None:
+            return cached_document
+        # not in cache? now we grab from storage & put it in cache
+        document = self.storage.get_document(document_id)
+        if document is not None:
+            cache_set(cache_key, document)
+        return document
 
     def update_document(
         self,
