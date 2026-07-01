@@ -5,6 +5,7 @@ from .models import (
     DocumentCreate,
     DocumentUpdate,
     DocumentStatus,
+    DocumentType
 )
 from .storage import DocumentStorage
 from .cache import cache_get, cache_set, cache_delete
@@ -76,8 +77,8 @@ class DocumentService:
     
     def list_documents(
         self,
-        status: Optional[str] = None,
-        document_type: Optional[str] = None,
+        status: Optional[DocumentStatus] = None,
+        document_type: Optional[DocumentType] = None,
     ) -> List[Document]:
         """
         List documents with optional filtering.

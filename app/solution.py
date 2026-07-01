@@ -5,6 +5,8 @@ from .models import (
     Document,
     DocumentCreate,
     DocumentUpdate,
+    DocumentStatus,
+    DocumentType
 )
 from .document_service import DocumentService
 
@@ -56,8 +58,8 @@ async def delete_document(document_id: str):
 
 @app.get("/documents", response_model=List[Document])
 async def list_documents(
-    status: Optional[str] = Query(None),
-    document_type: Optional[str] = Query(None),
+    status: Optional[DocumentStatus] = Query(None),
+    document_type: Optional[DocumentType] = Query(None),
 ):
     """List documents with optional filtering"""
     return document_service.list_documents(status, document_type)
