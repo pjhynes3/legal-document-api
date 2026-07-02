@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
 from typing import List, Optional
-
+from .database import Base, engine
 from .models import (
     Document,
     DocumentCreate,
@@ -9,6 +9,9 @@ from .models import (
     DocumentType
 )
 from .document_service import DocumentService
+
+from .database import Base, engine
+from . import db_models
 
 
 app = FastAPI(title="Legal Document Management API")

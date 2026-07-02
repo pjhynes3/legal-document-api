@@ -1,5 +1,7 @@
 from typing import Dict, List, Optional
 from datetime import datetime, timezone
+from .database import SessionLocal
+from .db_models import DocumentRow
 import uuid  # For generating unique IDs
 
 from .models import (
@@ -16,37 +18,34 @@ class DocumentStorage:
         self._documents: Dict[str, Document] = {}  # <-- Provided, don't change
 
     def create_document(self, document_data: DocumentCreate) -> Document:
-        """
-        Create a new document and return it with generated ID
-
-        Useful:
-            uuid.uuid4() for IDs
-            datetime.utcnow() for timestamps.
-
-        Required Document fields:
-            id
-            title
-            content
-            document_type
-            status (default: DRAFT)
-            created_at
-            updated_at
-        """
         now = datetime.now(timezone.utc)
         document_id = str(uuid.uuid4())
-        
-        document = Document(
-            id            = document_id,
-            title         = document_data.title,
-            content       = document_data.content,
-            document_type = document_data.document_type,
-            status        = DocumentStatus.DRAFT,
-            created_at    = now,
-            updated_at    = now,
+
+        document_row = DocumentRow(
+            id=document_id,
+            title=document_data.title,
+            content=document_data.content,
+            document_type=document_data.document_type.value,
+            status=DocumentStatus.DRAFT.value,
+            created_at=now,
+            updated_at=now,
         )
 
-        self._documents[document_id] = document
-        return document
+        db = SessionLocal()
+        db.add(document_row)
+        db.commit()
+        db.refresh(document_row)
+        db.close()
+
+        return Document(
+            id=document_row.id,
+            title=document_row.title,
+            content=document_row.content,
+            document_type=DocumentType(document_row.document_type),
+            status=DocumentStatus(document_row.status),
+            created_at=document_row.created_at,
+            updated_at=document_row.updated_at,
+        )
 
     def get_document(self, document_id: str) -> Optional[Document]:
         """
